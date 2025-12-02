@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PutMapping;
 
+import br.com.djrx.atendimento.modules.ficha.dto.FichaResponseDTO;
 
 @Controller
 @RequestMapping("/api/fichas")
@@ -27,30 +28,30 @@ public class FichaController {
     private FichaService fichaService;
 
     @GetMapping
-    public ResponseEntity<List<Ficha>> buscarTodasAsFichas(){
-        List<Ficha> listaDeFichas = fichaService.listarTodosAsFichas();
+    public ResponseEntity<List<FichaResponseDTO>> buscarTodasAsFichas(){
+        List<FichaResponseDTO> listaDeFichas = fichaService.listarTodosAsFichas();
         
         return ResponseEntity.ok(listaDeFichas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ficha> buscarUmaFichaPorId(@PathVariable UUID id) {
-        Ficha fichaBuscada = fichaService.buscarUmaFichaPorID(id);
+    public ResponseEntity<FichaResponseDTO> buscarUmaFichaPorId(@PathVariable UUID id) {
+        FichaResponseDTO fichaBuscada = fichaService.buscarUmaFichaPorID(id);
         
         return ResponseEntity.ok(fichaBuscada);
     }
 
     @PostMapping
-    public ResponseEntity<Ficha> criarUmaFicha(@Valid @RequestBody Ficha ficha){
-        Ficha novaFicha = fichaService.criarFicha(ficha);
+    public ResponseEntity<FichaResponseDTO> criarUmaFicha(@Valid @RequestBody Ficha ficha){
+        FichaResponseDTO novaFicha = fichaService.criarFicha(ficha);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(novaFicha);
     }
 
-    @PutMapping
-    public ResponseEntity<Ficha> atualiarFicha(@PathVariable UUID id, @Valid @RequestBody Ficha ficha){
+    @PutMapping("/{id}")
+    public ResponseEntity<FichaResponseDTO> atualiarFicha(@PathVariable UUID id, @Valid @RequestBody Ficha ficha){
 
-        Ficha fichaAtualizada = fichaService.atualizarUmaFicha(id, ficha);
+        FichaResponseDTO fichaAtualizada = fichaService.atualizarUmaFicha(id, ficha);
         return ResponseEntity.ok(fichaAtualizada);
     }
 

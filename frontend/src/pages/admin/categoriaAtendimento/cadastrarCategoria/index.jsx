@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiClient, DEFAULT_ERROR_MESSAGE } from "../../../../services/api";
 
 export default function CadastrarCategoriaAtendimento() {
   const [formData, setFormData] = useState({
@@ -35,20 +36,7 @@ export default function CadastrarCategoriaAtendimento() {
     setErro(null);
 
     try {
-      const response = await fetch("/api/tipos-de-atendimentos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Erro ao cadastrar categoria de atendimento"
-        );
-      }
+      await apiClient.post("/api/tipos-de-atendimentos", formData);
 
       setMensagem("Categoria de atendimento cadastrada com sucesso!");
 
@@ -58,7 +46,7 @@ export default function CadastrarCategoriaAtendimento() {
       });
       setValidated(false);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }

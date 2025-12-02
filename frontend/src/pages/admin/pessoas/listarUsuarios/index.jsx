@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ModalConfirmarExclusao from "../../../../components/modais/ModalConfirmarExclusao";
 import ModalEditarUsuario from "../../../../components/modais/ModalEditarUsuario";
+import { apiClient, DEFAULT_ERROR_MESSAGE } from "../../../../services/api";
 
 export default function ListarUsuarios() {
   const [funcionarios, setFuncionarios] = useState([]);
@@ -14,24 +15,18 @@ export default function ListarUsuarios() {
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
 
-  const carregarFuncionarios = () => {
-    fetch("/api/funcionarios")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Dados recebidos:", data);
-        setFuncionarios(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Erro completo:", error);
-        setErro(error.message);
-        setLoading(false);
-      });
+  const carregarFuncionarios = async () => {
+    setLoading(true);
+    setErro(null);
+    try {
+      const data = await apiClient.get("/api/funcionarios");
+      setFuncionarios(data ?? []);
+    } catch (error) {
+      console.error("Erro ao carregar funcionários:", error);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -48,20 +43,10 @@ export default function ListarUsuarios() {
   const handleSalvarEdicao = async (dadosAtualizados) => {
     setLoadingModal(true);
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/funcionarios/${dadosAtualizados.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dadosAtualizados),
-        }
+      await apiClient.patch(
+        `/api/funcionarios/${dadosAtualizados.id}`,
+        dadosAtualizados
       );
-
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar funcionário");
-      }
 
       setMensagem("Funcionário atualizado com sucesso!");
       carregarFuncionarios();
@@ -69,7 +54,7 @@ export default function ListarUsuarios() {
 
       setTimeout(() => setMensagem(null), 3000);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
     } finally {
       setLoadingModal(false);
     }
@@ -85,16 +70,7 @@ export default function ListarUsuarios() {
   const handleConfirmarExclusao = async () => {
     setLoadingModal(true);
     try {
-      const response = await fetch(
-        `http:/api/funcionarios/${funcionarioSelecionado.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao excluir funcionário");
-      }
+      await apiClient.delete(`/api/funcionarios/${funcionarioSelecionado.id}`);
 
       setMensagem("Funcionário excluído com sucesso!");
       carregarFuncionarios();
@@ -102,7 +78,7 @@ export default function ListarUsuarios() {
 
       setTimeout(() => setMensagem(null), 3000);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
     } finally {
       setLoadingModal(false);
     }

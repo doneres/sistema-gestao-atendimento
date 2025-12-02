@@ -1,4 +1,5 @@
 import { StrictMode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
@@ -40,9 +41,19 @@ const router = createBrowserRouter([
 ]);
 
 const root = document.getElementById("root");
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60, // 1 minuto
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(root).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>
 );

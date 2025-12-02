@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ModalEditarCategoria from "../../../../components/modais/ModalEditarCategoria";
 import ModalConfirmarExclusao from "../../../../components/modais/ModalConfirmarExclusao";
+import { apiClient, DEFAULT_ERROR_MESSAGE } from "../../../../services/api";
 
 export default function ListarCategoriasAtendimento() {
   const [tipoAtendimento, setTipoAtendimento] = useState([]);
@@ -14,24 +15,18 @@ export default function ListarCategoriasAtendimento() {
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
 
-  const carregarCategorias = () => {
-    fetch("/api/tipos-de-atendimentos")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Dados recebidos:", data);
-        setTipoAtendimento(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Erro completo:", error);
-        setErro(error.message);
-        setLoading(false);
-      });
+  const carregarCategorias = async () => {
+    setLoading(true);
+    setErro(null);
+    try {
+      const data = await apiClient.get("/api/tipos-de-atendimentos");
+      setTipoAtendimento(data ?? []);
+    } catch (error) {
+      console.error("Erro ao carregar categorias:", error);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -48,28 +43,17 @@ export default function ListarCategoriasAtendimento() {
   const handleSalvarEdicao = async (dadosAtualizados) => {
     setLoadingModal(true);
     try {
-      const response = await fetch(
+      await apiClient.patch(
         `/api/tipos-de-atendimentos/${dadosAtualizados.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dadosAtualizados),
-        }
+        dadosAtualizados
       );
-
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar categoria");
-      }
-
       setMensagem("Categoria atualizada com sucesso!");
       carregarCategorias();
       setShowModalEditar(false);
 
       setTimeout(() => setMensagem(null), 3000);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
       setTimeout(() => setErro(null), 5000);
     } finally {
       setLoadingModal(false);
@@ -86,16 +70,9 @@ export default function ListarCategoriasAtendimento() {
   const handleConfirmarExclusao = async () => {
     setLoadingModal(true);
     try {
-      const response = await fetch(
-        `/api/tipos-de-atendimentos/${categoriaSelecionada.id}`,
-        {
-          method: "DELETE",
-        }
+      await apiClient.delete(
+        `/api/tipos-de-atendimentos/${categoriaSelecionada.id}`
       );
-
-      if (!response.ok) {
-        throw new Error("Erro ao excluir categoria");
-      }
 
       setMensagem("Categoria excluída com sucesso!");
       carregarCategorias();
@@ -103,7 +80,7 @@ export default function ListarCategoriasAtendimento() {
 
       setTimeout(() => setMensagem(null), 3000);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
       setTimeout(() => setErro(null), 5000);
     } finally {
       setLoadingModal(false);

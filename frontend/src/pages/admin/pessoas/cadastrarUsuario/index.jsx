@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiClient, DEFAULT_ERROR_MESSAGE } from "../../../../services/api";
 
 export default function CadastrarFuncionario() {
   const [formData, setFormData] = useState({
@@ -42,17 +43,7 @@ export default function CadastrarFuncionario() {
     setErro(null);
 
     try {
-      const response = await fetch("/api/funcionarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao cadastrar funcionário");
-      }
+      await apiClient.post("/api/funcionarios", formData);
 
       setMensagem("Funcionário cadastrado com sucesso!");
 
@@ -69,7 +60,7 @@ export default function CadastrarFuncionario() {
       });
       setValidated(false);
     } catch (error) {
-      setErro(error.message);
+      setErro(error?.message ?? DEFAULT_ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
