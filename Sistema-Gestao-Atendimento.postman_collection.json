@@ -1,0 +1,579 @@
+{
+    "info": {
+        "name": "Sistema Gestão Atendimento",
+        "description": "API completa do Sistema de Gestão de Atendimento",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "1"
+    },
+    "item": [
+        {
+            "name": "Funcionários",
+            "item": [
+                {
+                    "name": "Listar Todos os Funcionários",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios"
+                            ]
+                        },
+                        "description": "Retorna lista de todos os funcionários cadastrados"
+                    }
+                },
+                {
+                    "name": "Buscar Funcionário por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios/{{funcionarioId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios",
+                                "{{funcionarioId}}"
+                            ]
+                        },
+                        "description": "Busca um funcionário específico pelo ID"
+                    }
+                },
+                {
+                    "name": "Criar Funcionário",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201 || pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('funcionarioId', response.id);",
+                                    "    pm.test('Funcionário criado com sucesso', function() {",
+                                    "        pm.expect(response).to.have.property('id');",
+                                    "    });",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Maria Santos\",\n  \"matricula\": 1002,\n  \"funcao\": \"Atendente\",\n  \"telefone\": \"11998765432\",\n  \"email\": \"maria.santos@example.com\",\n  \"dataNascimento\": \"1990-05-15\",\n  \"username\": \"maria.santos\",\n  \"password\": \"senha123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios"
+                            ]
+                        },
+                        "description": "Cria um novo funcionário"
+                    }
+                },
+                {
+                    "name": "Atualizar Funcionário",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Maria Santos Silva\",\n  \"matricula\": 1002,\n  \"funcao\": \"Gerente\",\n  \"telefone\": \"11998765432\",\n  \"email\": \"maria.silva@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios/{{funcionarioId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios",
+                                "{{funcionarioId}}"
+                            ]
+                        },
+                        "description": "Atualiza dados de um funcionário existente"
+                    }
+                },
+                {
+                    "name": "Deletar Funcionário",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios/{{funcionarioId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios",
+                                "{{funcionarioId}}"
+                            ]
+                        },
+                        "description": "Remove um funcionário do sistema"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Tipos de Atendimento",
+            "item": [
+                {
+                    "name": "Listar Tipos de Atendimento",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tipos-de-atendimentos",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tipos-de-atendimentos"
+                            ]
+                        },
+                        "description": "Lista todos os tipos de atendimento disponíveis"
+                    }
+                },
+                {
+                    "name": "Buscar Tipo por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tipos-de-atendimentos/{{tipoAtendimentoId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tipos-de-atendimentos",
+                                "{{tipoAtendimentoId}}"
+                            ]
+                        },
+                        "description": "Busca um tipo de atendimento específico"
+                    }
+                },
+                {
+                    "name": "Criar Tipo de Atendimento",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201 || pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('tipoAtendimentoId', response.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Consulta Médica\",\n  \"descricao\": \"Atendimento médico geral\",\n  \"tempoMedioMinutos\": 30,\n  \"ativo\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tipos-de-atendimentos",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tipos-de-atendimentos"
+                            ]
+                        },
+                        "description": "Cria um novo tipo de atendimento"
+                    }
+                },
+                {
+                    "name": "Atualizar Tipo de Atendimento",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Consulta Especializada\",\n  \"descricao\": \"Atendimento com especialista\",\n  \"tempoMedioMinutos\": 45,\n  \"ativo\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tipos-de-atendimentos/{{tipoAtendimentoId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tipos-de-atendimentos",
+                                "{{tipoAtendimentoId}}"
+                            ]
+                        },
+                        "description": "Atualiza um tipo de atendimento existente"
+                    }
+                },
+                {
+                    "name": "Deletar Tipo de Atendimento",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tipos-de-atendimentos/{{tipoAtendimentoId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tipos-de-atendimentos",
+                                "{{tipoAtendimentoId}}"
+                            ]
+                        },
+                        "description": "Remove um tipo de atendimento"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Fichas de Atendimento",
+            "item": [
+                {
+                    "name": "Listar Todas as Fichas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas"
+                            ]
+                        },
+                        "description": "Lista todas as fichas de atendimento"
+                    }
+                },
+                {
+                    "name": "Buscar Ficha por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas/{{fichaId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas",
+                                "{{fichaId}}"
+                            ]
+                        },
+                        "description": "Busca uma ficha específica"
+                    }
+                },
+                {
+                    "name": "Criar Ficha",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201 || pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('fichaId', response.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"clienteId\": \"{{clienteId}}\",\n  \"tipoAtendimentoId\": \"{{tipoAtendimentoId}}\",\n  \"prioridade\": \"NORMAL\",\n  \"observacoes\": \"Cliente preferencial\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas"
+                            ]
+                        },
+                        "description": "Cria uma nova ficha de atendimento"
+                    }
+                },
+                {
+                    "name": "Atualizar Ficha",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"EM_ATENDIMENTO\",\n  \"funcionarioId\": \"{{funcionarioId}}\",\n  \"observacoes\": \"Atendimento em andamento\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas/{{fichaId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas",
+                                "{{fichaId}}"
+                            ]
+                        },
+                        "description": "Atualiza status e dados da ficha"
+                    }
+                },
+                {
+                    "name": "Deletar Ficha",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas/{{fichaId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas",
+                                "{{fichaId}}"
+                            ]
+                        },
+                        "description": "Remove uma ficha"
+                    }
+                },
+                {
+                    "name": "Estimativa de Espera",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/fichas/{{fichaId}}/estimativa-espera",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "fichas",
+                                "{{fichaId}}",
+                                "estimativa-espera"
+                            ]
+                        },
+                        "description": "Retorna a estimativa de tempo de espera para a ficha"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Clientes",
+            "item": [
+                {
+                    "name": "Listar Todos os Clientes",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/clientes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Lista todos os clientes cadastrados"
+                    }
+                },
+                {
+                    "name": "Buscar Cliente por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{clienteId}}"
+                            ]
+                        },
+                        "description": "Busca um cliente específico"
+                    }
+                },
+                {
+                    "name": "Criar Cliente",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201 || pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('clienteId', response.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Pedro Oliveira\",\n  \"cpf\": \"12345678901\",\n  \"telefone\": \"11987654321\",\n  \"email\": \"pedro@example.com\",\n  \"dataNascimento\": \"1995-03-20\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/clientes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Cria um novo cliente"
+                    }
+                },
+                {
+                    "name": "Atualizar Cliente",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Pedro Oliveira Santos\",\n  \"telefone\": \"11998765432\",\n  \"email\": \"pedro.oliveira@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{clienteId}}"
+                            ]
+                        },
+                        "description": "Atualiza dados de um cliente"
+                    }
+                },
+                {
+                    "name": "Deletar Cliente",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{clienteId}}"
+                            ]
+                        },
+                        "description": "Remove um cliente"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "item": [
+                {
+                    "name": "Verificar API",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/funcionarios",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "funcionarios"
+                            ]
+                        },
+                        "description": "Teste rápido para verificar se a API está respondendo"
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ]
+}
