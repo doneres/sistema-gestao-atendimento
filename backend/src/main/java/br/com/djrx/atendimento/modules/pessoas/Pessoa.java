@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.validator.constraints.Length;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.Email;
@@ -27,20 +29,37 @@ public class Pessoa {
 
     @NotBlank(message = "O username é obrigatório")
     @Pattern(regexp = "^\\S+$", message = "O campo não deve conter espaços!")
+    @Column(unique = true)
     private String username;
 
     @NotBlank(message = "O email é obrigatório!")
     @Email(message = "O campo precisa ter um e-mail válido!")
     private String email;
 
+    // Senha será armazenada como hash (não usar validação de padrão aqui)
     @NotBlank(message = "A senha é obrigatória!")
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{12,}$",
-        message = "A senha deve conter no mínimo 12 caracteres, incluindo: letra maiúscula, minúscula, número e caractere especial (@$!%*?&#)!"
-    )
-    @Length(min = 12,max = 100, message = "A senha denve conter de 12 a 100 caracteres")
+    @Column(nullable = false)
     private String senha;
 
+    // Salt individual para cada usuário (usado no hash da senha)
+    @Column(nullable = false)
+    private String salt;
+
+    // Token JWT armazenado para validação de sessão
+    @Column(length = 500)
+    private String token;
+
+    // Data de criação do token
+    private LocalDateTime tokenCreationDate;
+
+    // Tipo de pessoa (CLIENTE, FUNCIONARIO, ADMIN)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipo;
+
+    // Controle de sessão
+    private LocalDateTime loginTime;
+    private LocalDateTime logoutTime;
     
     @NotBlank(message = "O telefone é obrigatório!")
     @Pattern(
@@ -59,5 +78,32 @@ public class Pessoa {
     @PrePersist
     public void prePersist() {
         dataCadastro = LocalDateTime.now();
+    }
+
+    /**
+     * Marca o usuário como logado, armazenando o token e o horário de login
+     */
+    public void login(String jwtToken) {
+        this.token = jwtToken;
+        this.loginTime = LocalDateTime.now();
+        this.tokenCreationDate = LocalDateTime.now();
+        this.logoutTime = null; // Limpa logout anterior
+    }
+
+    /**
+     * Marca o usuário como deslogado, limpando o token e registrando horário de logout
+     */
+    public void logout() {
+        this.token = null;
+        this.logoutTime = LocalDateTime.now();
+    }
+
+    /**
+     * Verifica se o usuário está com sessão ativa (não fez logout após o último login)
+     */
+    public boolean isSessionActive() {
+        if (loginTime == null) return false;
+        if (logoutTime == null) return true;
+        return loginTime.isAfter(logoutTime);
     }
 }
