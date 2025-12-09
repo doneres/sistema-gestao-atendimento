@@ -54,9 +54,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: atendimento_db
+      DB_USER: sysadminatend
+      DB_PASSWORD: +Y[p0kU*Z4jj
     depends_on:
-      - backend
+      - db
     restart: unless-stopped
+
 
 volumes:
   postgres-data:

@@ -1,54 +1,54 @@
-# ia-service/train.py
-import numpy as np
+import os
+import psycopg2
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from joblib import dump
+import joblib
+from sklearn.linear_model import LinearRegression
 
-def gerar_dados_sinteticos(n=1000):
-    rng = np.random.default_rng(42)
-
-    fila_atual = rng.integers(0, 30, size=n)
-    atendentes_ativos = rng.integers(1, 6, size=n)
-    tipo_atendimento = rng.integers(0, 5, size=n)  # 5 tipos
-
-    tempo_espera = (
-        fila_atual * rng.uniform(1.5, 3.0, size=n) / np.clip(atendentes_ativos, 1, None)
-        + tipo_atendimento * 2
-        + rng.normal(0, 3, size=n)
+def carregar_dados_reais():
+    conn = psycopg2.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        dbname=os.getenv("DB_NAME", "atendimento_db"),
+        user=os.getenv("DB_USER", "sysadminatend"),
+        password=os.getenv("DB_PASSWORD", "")
     )
 
-    df = pd.DataFrame({
-        "fila_atual": fila_atual,
-        "atendentes_ativos": atendentes_ativos,
-        "tipo_atendimento": tipo_atendimento,
-        "tempo_espera": tempo_espera
-    })
+    query = """
+        SELECT
+          data_hora_inicio_atendimento,
+          data_hora_fim_atendimento,
+          tipo_servico_id
+        FROM fichas
+        WHERE status = 'FINALIZADO'
+          AND data_hora_inicio_atendimento IS NOT NULL
+          AND data_hora_fim_atendimento IS NOT NULL;
+    """
 
-    return df
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+
+    if df.empty:
+        raise RuntimeError("Não há dados suficientes no banco para treinar o modelo.")
+
+    # calcula tempo de atendimento em minutos
+    df["data_hora_inicio_atendimento"] = pd.to_datetime(df["data_hora_inicio_atendimento"])
+    df["data_hora_fim_atendimento"] = pd.to_datetime(df["data_hora_fim_atendimento"])
+    df["tempo_min"] = (df["data_hora_fim_atendimento"] - df["data_hora_inicio_atendimento"]).dt.total_seconds() / 60.0
+    df["tipo_codigo"] = df["tipo_servico_id"].astype("category").cat.codes
+
+    X = df[["tipo_codigo"]]     
+    y = df["tempo_min"]         
+
+    return X, y
 
 def treinar_modelo():
-    df = gerar_dados_sinteticos(2000)
+    X, y = carregar_dados_reais()
 
-    X = df[["fila_atual", "atendentes_ativos", "tipo_atendimento"]]
-    y = df["tempo_espera"]
+    modelo = LinearRegression()
+    modelo.fit(X, y)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    modelo = RandomForestRegressor(
-        n_estimators=100,
-        random_state=42
-    )
-
-    modelo.fit(X_train, y_train)
-
-    score = modelo.score(X_test, y_test)
-    print(f"Acurácia (R²) no teste: {score:.3f}")
-
-    dump(modelo, "model.pkl")
-    print("Modelo salvo em model.pkl")
+    joblib.dump(modelo, "model.pkl")
+    print("Modelo treinado e salvo com dados REAIS!")
 
 if __name__ == "__main__":
     treinar_modelo()

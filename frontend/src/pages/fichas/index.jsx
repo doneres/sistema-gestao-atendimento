@@ -94,6 +94,8 @@ export default function GerenciarFichas() {
     criarFicha,
     criandoFicha,
     atualizarFicha,
+    deletarFicha,        // ⬅️ vem do hook
+    deletandoFicha,      // (se quiser usar pra desabilitar botão depois)
   } = useFichas();
 
   const {
@@ -172,6 +174,22 @@ export default function GerenciarFichas() {
     }
   };
 
+  // 🔴 handler de exclusão fica DENTRO do componente
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Tem certeza que deseja excluir esta ficha?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await deletarFicha(id);
+      toast.success("Ficha excluída com sucesso!");
+      handleRefresh();
+    } catch (error) {
+      toast.error(error?.message ?? "Erro ao excluir ficha.");
+    }
+  };
+
   return (
     <Page>
       <Container>
@@ -217,6 +235,7 @@ export default function GerenciarFichas() {
             onTransfer={handleTransfer}
             statusEmAtualizacao={statusAtualizandoId}
             transferindoId={transferindoFichaId}
+            onDelete={handleDelete}   // ⬅️ passa para a tabela
           />
         </Grid>
       </Container>

@@ -1,6 +1,6 @@
-import { EstimativaEspera } from "./EstimativaEspera";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
+import { EstimativaEspera } from "./EstimativaEspera";
 
 const Card = styled.section`
   background: #fff;
@@ -144,6 +144,18 @@ const ActionButton = styled.button`
   }
 `;
 
+// botão de excluir com estilo diferente
+const DeleteButton = styled(ActionButton)`
+  color: #b91c1c;
+  border-color: #fecaca;
+
+  &:hover:enabled {
+    color: #fff;
+    background: #dc2626;
+    border-color: #fca5a5;
+  }
+`;
+
 const TransferSelect = styled.select`
   border: 1px solid #cbd5f5;
   border-radius: 8px;
@@ -190,6 +202,7 @@ export default function FichaList({
   onTransfer,
   statusEmAtualizacao,
   transferindoId,
+  onDelete, // nova prop
 }) {
   const [linhaTransferindo, setLinhaTransferindo] = useState(null);
 
@@ -232,6 +245,11 @@ export default function FichaList({
     onChangeStatus(ficha.id, value);
   };
 
+  const handleDeleteClick = (id) => {
+    if (!onDelete) return;
+    onDelete(id);
+  };
+
   return (
     <Card>
       <Header>
@@ -271,7 +289,6 @@ export default function FichaList({
                 <th>Entrada</th>
                 <th>Início</th>
                 <th>Fim</th>
-                {/* 🔹 nova coluna da IA */}
                 <th>Tempo estimado</th>
                 <th>Ações</th>
               </tr>
@@ -333,7 +350,6 @@ export default function FichaList({
                   <td>{formatDateTime(ficha.dataHoraEntradaFila)}</td>
                   <td>{formatDateTime(ficha.dataHoraInicioAtendimento)}</td>
                   <td>{formatDateTime(ficha.dataHoraFimAtendimento)}</td>
-                  {/* 🔹 célula nova chamando a IA */}
                   <td>
                     <EstimativaEspera fichaId={ficha.id} />
                   </td>
@@ -348,6 +364,13 @@ export default function FichaList({
                           ? "Cancelar"
                           : "Transferir"}
                       </ActionButton>
+
+                      <DeleteButton
+                        type="button"
+                        onClick={() => handleDeleteClick(ficha.id)}
+                      >
+                        Excluir
+                      </DeleteButton>
                     </Actions>
                   </td>
                 </tr>
